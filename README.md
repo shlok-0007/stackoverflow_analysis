@@ -17,13 +17,12 @@ An interactive web application for analyzing and visualizing Stack Overflow surv
   - Time series analysis of technology adoption
   - Geographic distribution of developers
   - Salary comparison across different technologies and experience levels
-- **Responsive Design**: Works on both desktop and mobile devices
 
 ## Prerequisites
 
 - Python 3.8+
 - pip (Python package manager)
-- Modern web browser with JavaScript enabled
+- Modern web browser with
 
 ## Data Description
 
@@ -32,6 +31,14 @@ The dataset includes responses from the Stack Overflow Annual Developer Survey, 
 - Technology usage (programming languages, frameworks, databases)
 - Job-related information (salary, company size, job satisfaction)
 - Technology preferences and learning resources
+
+## Data Setup
+
+1. Download the `data.csv` file from [Google Drive](https://drive.google.com/file/d/19VepHq1S0mcyNF2b4Gh3jlbPNOWKmADH/view?usp=drive_link)
+2. Place the downloaded `data.csv` file in the project root directory
+3. The application will automatically load the data when started
+
+> **Note:** The data file is not included in the repository due to its size. You must download it separately and place it in the project directory.
 
 ## Installation
 
@@ -90,48 +97,6 @@ The dataset includes responses from the Stack Overflow Annual Developer Survey, 
 - Stack Overflow Annual Developer Survey Data
 - Additional technology trend data from Stack Overflow Insights
 
-## Handling Large Data Files
-
-Since `data.csv` is large (about 62MB), it's not recommended to track it with Git. Here's how to handle it:
-
-### Option 1: Git LFS (Large File Storage)
-
-1. Install Git LFS if you haven't already:
-   - Download from [git-lfs.github.com](https://git-lfs.github.com/)
-   - Or install via package manager (e.g., `brew install git-lfs` on macOS)
-
-2. Set up Git LFS in your repository:
-   ```bash
-   git lfs install
-   git lfs track "data.csv"
-   ```
-
-3. Commit the `.gitattributes` file that was created:
-   ```bash
-   git add .gitattributes
-   git commit -m "Add Git LFS tracking for data.csv"
-   ```
-
-4. Add and commit your data file:
-   ```bash
-   git add data.csv
-   git commit -m "Add data file"
-   git push
-   ```
-
-### Option 2: .gitignore (Recommended for very large files)
-
-1. Add the data file to `.gitignore`:
-   ```
-   # In .gitignore
-   data.csv
-   ```
-
-2. Share the data file through other means:
-   - Cloud storage (Google Drive, Dropbox, etc.)
-   - File sharing services (WeTransfer, etc.)
-   - Include instructions in your README on how to obtain the data file
-
 ## Contributing
 
 1. Fork the repository
@@ -146,4 +111,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-For any questions or feedback, please contact [Your Name] at [your.email@example.com]
+For any questions or feedback, please contact [Shlok Gupta] at [shlokg62@gmail.com]
