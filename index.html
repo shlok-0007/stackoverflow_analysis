@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tag Trends Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0d1117;
+      color: #ddd;
+      overflow-x: hidden;
+    }
+    header {
+      background: linear-gradient(to right, #1f2937, #0f172a);
+      color: white;
+      padding: 3rem 1rem 2rem;
+      text-align: center;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    header p {
+      font-size: 1.1rem;
+      color: #cbd5e1;
+      max-width: 700px;
+      margin: 1rem auto 0;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: auto;
+    }
+    .chart-box {
+      background: #161b22;
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+    .chart-box:hover {
+      transform: translateY(-5px);
+    }
+    h2 {
+      margin-bottom: 1rem;
+      color: #f0f6fc;
+      font-size: 1.4rem;
+    }
+    canvas {
+      max-height: 500px;
+    }
+    .dropdown {
+      margin-bottom: 1rem;
+      background: #0f172a;
+      color: #eee;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+    .dropdown:focus {
+      outline: none;
+    }
+    footer {
+      background: #0f172a;
+      color: #888;
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.95rem;
+      border-top: 1px solid #222;
+    }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 4px solid #444;
+      border-top-color: #58a6ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+      display: none;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: #0d1117;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2.5rem;
+      color: #ccc;
+      cursor: pointer;
+      z-index: 99999;
+    }
+    .modal canvas {
+      width: 100% !important;
+      height: 90vh !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tag Trends Analytics Dashboard (stackoverflow)</h1>
+    <p>Dive deep into question trends by tag, discover patterns by hour and time, and explore the rise of technologies like Python with our futuristic visualization suite.</p>
+    <a href="https://stackoverflow.com">stackoverflow</a>
+  </header>
+
+  <div class="dashboard">
+    <div class="chart-box" onclick="openModal('yearlyTop')">
+      <h2>1. Yearly Tag Dominance</h2>
+      <select class="dropdown" onchange="renderChart('yearlyTop', this.value)">
+        <option value="bar">Bar Chart</option>
+        <option value="line">Line Chart</option>
+      </select>
+      <div class="spinner" id="spinner-yearlyTop"></div>
+      <canvas id="yearlyTopChart"></canvas>
+    </div>
+    <div class="chart-box" onclick="openModal('questionsPerMonth')">
+      <h2>2. Monthly Questions by Top 10 Tags</h2>
+      <select class="dropdown" onchange="renderChart('questionsPerMonth', this.value)">
+        <option value="line">Line Chart</option>
+        <option value="bar">Bar Chart</option>
+      </select>
+      <div class="spinner" id="spinner-questionsPerMonth"></div>
+      <canvas id="questionsPerMonthChart"></canvas>
+    </div>
+    <div class="chart-box" onclick="openModal('tagCorr')">
+      <h2>3. Tag Rank Shift Over Time</h2>
+      <select class="dropdown" onchange="renderChart('tagCorr', this.value)">
+        <option value="line">Line Chart</option>
+        <option value="bar">Bar Chart</option>
+      </select>
+      <div class="spinner" id="spinner-tagCorr"></div>
+      <canvas id="tagCorrChart"></canvas>
+    </div>
+    <div class="chart-box" onclick="openModal('pythonTags')">
+      <h2>4. Python-Related Tags Over Time</h2>
+      <select class="dropdown" onchange="renderChart('pythonTags', this.value)">
+        <option value="line">Line Chart</option>
+        <option value="bar">Bar Chart</option>
+      </select>
+      <div class="spinner" id="spinner-pythonTags"></div>
+      <canvas id="pythonTagsChart"></canvas>
+    </div>
+    <div class="chart-box" onclick="openModal('hourlyTrend')">
+      <h2>5. Hourly Tag Activity</h2>
+      <select class="dropdown" onchange="renderChart('hourlyTrend', this.value)">
+        <option value="line">Line Chart</option>
+        <option value="bar">Bar Chart</option>
+      </select>
+      <div class="spinner" id="spinner-hourlyTrend"></div>
+      <canvas id="hourlyTrendChart"></canvas>
+    </div>
+  </div>
+
+  <div class="modal" id="chartModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">×</span>
+      <canvas id="modalChartCanvas"></canvas>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Tag Analytics • Shlok Gupta | Email: su-24138@sitare.org.
+  </footer>
+
+  <script>
+    const chartRefs = {};
+    let modalChartInstance = null;
+
+    async function getData(url) {
+      const res = await fetch(url);
+      return await res.json();
+    }
+
+    async function renderChart(chartId, type, isModal = false) {
+      const urlMap = {
+        questionsPerMonth: "http://127.0.0.1:5000/questions-per-month",
+        yearlyTop: "http://127.0.0.1:5000/yearly-top-tags",
+        tagCorr: "http://127.0.0.1:5000/tag-rank-shift",
+        pythonTags: "http://127.0.0.1:5000/python-related-tags",
+        hourlyTrend: "http://127.0.0.1:5000/hourly-trend"
+      };
+
+      const canvasId = isModal ? 'modalChartCanvas' : chartId + "Chart";
+      const spinner = isModal ? null : document.getElementById("spinner-" + chartId);
+      if (spinner) spinner.style.display = "block";
+
+      const data = await getData(urlMap[chartId]);
+      const chartData = {
+        type,
+        data: {
+          labels: data.labels,
+          datasets: data.datasets.map((d, i) => ({
+            ...d,
+            backgroundColor: `hsl(${i * 40}, 70%, 55%)`,
+            borderColor: `hsl(${i * 40}, 70%, 55%)`,
+            borderWidth: 2,
+            fill: type === 'line' ? false : true,
+            tension: 0.4
+          }))
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 1000 },
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Questions' }
+            },
+            x: {
+              title: { display: true, text: 'Time' }
+            }
+          }
+        }
+      };
+
+      if (isModal) {
+        if (modalChartInstance) modalChartInstance.destroy();
+        modalChartInstance = new Chart(document.getElementById(canvasId), chartData);
+      } else {
+        if (chartRefs[chartId]) chartRefs[chartId].destroy();
+        chartRefs[chartId] = new Chart(document.getElementById(canvasId), chartData);
+        if (spinner) spinner.style.display = "none";
+      }
+    }
+
+    function openModal(chartId) {
+      document.getElementById("chartModal").style.display = "flex";
+      renderChart(chartId, "line", true);
+    }
+
+    function closeModal() {
+      document.getElementById("chartModal").style.display = "none";
+      if (modalChartInstance) {
+        modalChartInstance.destroy();
+        modalChartInstance = null;
+      }
+    }
+
+    renderChart('yearlyTop', 'bar');
+    renderChart('questionsPerMonth', 'line');
+    renderChart('tagCorr', 'line');
+    renderChart('pythonTags', 'line');
+    renderChart('hourlyTrend', 'line');
+  </script>
+</body>
+</html>
